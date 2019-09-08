@@ -1,4 +1,14 @@
 # Golang-luckymoney
+## 环境：
+    Go 1.12.9
+    验证框架 https://github.com/go-playground/validator
+    配置框架 https://github.com/tietang/props
+    日志框架 https://github.com/sirupsen/logrus
+    数据存储 mysql 8.0
+    数据访问 https://github.com/tietang/dbx
+    web服务框架 https://github.com/kataras/iris
+    测试框架 github.com/smartystreets/goconvy
+     
 # 场景概述：
     各种节日
 ## 红包类型：
@@ -113,6 +123,34 @@
 
 ***
 ## 架构设计
+    用户 ->(View->红包服务->钱包服务)->MySQL
+    
+    红包系统特点：事务安全和高并发
+    
+    高并发高性能解决方案：
+        1.数据就近访问
+        2.高性能存储
+        3.异步减少等待和缓冲
+        4.横向扩展：分布式集群
+        
+        本系统：
+        1.高效缓存：分布式缓存和本地缓存
+        2.缓冲：消息队列异步化
+        3.数据层横向扩展能力：分片
+    
+    超卖的解决方案：
+        1.事务行锁： select for update
+            适合：写多，写冲突多的场景
+            优点：稳定可靠，不会出现超卖
+            缺点：
+                需要查询和计算：性能差、锁的阻塞与等待
+                锁阻塞或等待会导致客户端延迟或超时
+                重试增加系统和网络开销
+        2.数据库字段+直接更新：将剩余数量和金额字段设置为无符号整数
+            优点：不查询，直接更新
+        3.乐观锁：CAS操作
+            适合：写少，写冲突少的场景
+            
 
 ## 计算机系统中的数据读取延迟
     :hammer: CPU
